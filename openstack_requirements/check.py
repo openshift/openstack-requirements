@@ -18,12 +18,9 @@ import collections
 import re
 import sys
 
-from packaging import markers
-
 from openstack_requirements.project import Project
 from openstack_requirements import requirement
 
-MIN_PY_VERSION = '3.5'
 PY3_GLOBAL_SPECIFIER_RE = re.compile(
     r'python_version(==|>=|>)[\'"]3\.\d+[\'"]'
 )
@@ -36,13 +33,9 @@ class RequirementsList:
     def __init__(self, name: str, project: Project) -> None:
         self.name = name
         self.reqs_by_file: dict[str, dict[str, set[str]]] = {}
+        self.optional_reqs_by_file: dict[str, dict[str, set[str]]] = {}
         self.project = project
         self.failed = False
-
-    @property
-    def reqs(self) -> dict[str, set[str]]:
-        """Flattens the list of per-file reqs."""
-        return {k: v for d in self.reqs_by_file.values() for k, v in d.items()}
 
     def extract_reqs(
         self, content: list[str], strict: bool
@@ -112,7 +105,7 @@ class RequirementsList:
             print(f"Processing {fname} (extras)")
             for name, content in extras.items():
                 print(f"  Processing {name!r} extra")
-                self.reqs_by_file[f'{fname} ({name!r} extra)'] = (
+                self.optional_reqs_by_file[f'{fname} ({name!r} extra)'] = (
                     self.extract_reqs(content, strict)
                 )
 
@@ -120,9 +113,9 @@ class RequirementsList:
             print(f"Processing {fname} (dependency-groups)")
             for name, content in groups.items():
                 print(f"  Processing {name!r} dependency group")
-                self.reqs_by_file[f'{fname} ({name!r} dependency group)'] = (
-                    self.extract_reqs(content, strict)
-                )
+                self.optional_reqs_by_file[
+                    f'{fname} ({name!r} dependency group)'
+                ] = self.extract_reqs(content, strict)
 
 
 def _get_exclusions(req):
@@ -234,29 +227,14 @@ def get_global_reqs(content):
     return global_reqs
 
 
-def _get_python3_reqs(reqs):
-    """Filters out the reqs that are less than our minimum version."""
-    results = []
-    for req in reqs:
-        if not req.markers:
-            results.append(req)
-        else:
-            req_markers = markers.Marker(req.markers)
-            if req_markers.evaluate(
-                {
-                    'python_version': MIN_PY_VERSION,
-                }
-            ):
-                results.append(req)
-    return results
-
-
 def _validate_one(
     name,
     reqs,
     denylist,
     global_reqs,
     backports,
+    *,
+    is_optional,
 ):
     """Returns True if there is a failure."""
 
@@ -267,6 +245,9 @@ def _validate_one(
         return False
 
     if name not in global_reqs:
+        if is_optional:
+            return False
+
         print(f"ERROR: Requirement '{reqs}' not in openstack/requirements")
         return True
 
@@ -319,18 +300,26 @@ def validate(
     failed = False
     # iterate through the changing entries and see if they match the global
     # equivalents we want enforced
-    for fname, freqs in head_reqs.reqs_by_file.items():
-        print(f"Validating {fname}")
-        for name, reqs in freqs.items():
-            failed = (
-                _validate_one(
-                    name,
-                    reqs,
-                    denylist,
-                    global_reqs,
-                    backports,
+    # note that extras and dependency groups are project-specific and may not
+    # be present in global-requirements, so we only note their absence rather
+    # than failing if so
+    for reqs_by_file, is_optional in (
+        (head_reqs.reqs_by_file, False),
+        (head_reqs.optional_reqs_by_file, True),
+    ):
+        for fname, freqs in reqs_by_file.items():
+            print(f"Validating {fname}")
+            for name, reqs in freqs.items():
+                failed = (
+                    _validate_one(
+                        name,
+                        reqs,
+                        denylist,
+                        global_reqs,
+                        backports,
+                        is_optional=is_optional,
+                    )
+                    or failed
                 )
-                or failed
-            )
 
     return failed
