@@ -71,6 +71,7 @@ nosehtmloutput===0.0.7
 waitress===2.1.2
 os-refresh-config===13.1.0
 pysnmp===4.4.12
+pysnmp-lextudio===5.0.26
 Mako===1.2.3
 pyScss===1.4.0
 sphinxcontrib-htmlhelp===2.0.0
@@ -504,6 +505,8 @@ mitba===1.1.1
 python-masakariclient===8.1.0
 Werkzeug===2.2.2
 pyasn1-modules===0.2.8
+pyasn1-lextudio===1.1.2
+pyasn1-modules-lextudio===0.2.9
 APScheduler===3.9.1
 monotonic===1.6
 xmlschema===2.1.1
