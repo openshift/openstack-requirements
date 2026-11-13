@@ -84,6 +84,7 @@ Jinja2  # BSD License (3 clause)
 jira  # BSD License (2 clause)
 jmespath  # MIT
 jsonpatch!=1.20  # BSD
+jsonpath-ng  # Apache-2.0
 jsonschema  # MIT
 kazoo  # Apache-2.0
 kombu!=4.0.2  # BSD
@@ -159,8 +160,6 @@ Routes  # MIT
 rtslib-fb  # Apache-2.0
 ruamel.yaml  # MIT
 salt!=2019.2.1,!=2019.2.2  # Apache-2.0
-scikit-learn  # BSD
-scipy  # BSD
 semantic-version  # BSD
 setproctitle  # BSD
 SQLAlchemy  # MIT
@@ -173,7 +172,6 @@ systemd-python  # LGPLv2+
 sysv-ipc  # BSD License
 tabulate  # MIT
 tenacity  # Apache-2.0
-uhashring  # BSD
 urllib3  # MIT
 valkey  # MIT
 voluptuous  # BSD License
@@ -315,7 +313,6 @@ futurist  # Apache-2.0
 glance-store!=0.29.0  # Apache-2.0
 heat-translator  # Apache-2.0
 horizon  # Apache-2.0
-ironic-lib!=4.6.0  # Apache-2.0
 keystoneauth1  # Apache-2.0
 keystonemiddleware  # Apache-2.0
 kuryr-lib  # Apache-2.0
@@ -396,7 +393,6 @@ python-designateclient  # Apache-2.0
 python-freezerclient  # Apache-2.0
 python-glanceclient  # Apache-2.0
 python-heatclient  # Apache-2.0
-python-ironic-inspector-client  # Apache-2.0
 python-ironicclient!=2.5.2,!=2.7.1,!=3.0.0  # Apache-2.0
 python-keystoneclient!=2.1.0  # Apache-2.0
 python-magnumclient  # Apache-2.0
